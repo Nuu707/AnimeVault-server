@@ -4,11 +4,11 @@ const cors = require('cors');
 require('dotenv').config(); // Para usar variables de entorno
 
 // Importar rutas
-const animeRoutes = require('./routes/animeRoutes');
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const friendsRoutes = require('./routes/friendsRoutes');
-const contactRoutes = require('./routes/contactRoutes');
+const animeRoutes = require('./src/routes/animeRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const friendsRoutes = require('./src/routes/friendsRoutes');
+const contactRoutes = require('./src/routes/contactRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;

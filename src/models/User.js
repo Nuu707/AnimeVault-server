@@ -12,7 +12,6 @@ const animeSchema = new mongoose.Schema(
       enum: ["plan", "watching", "completed", "dropped", "on-hold"],
       default: "plan",
     },
-    rating: { type: Number, min: 0, max: 10 }, // puntuación del usuario
     favorite: { type: Boolean, default: false },
     addedAt: { type: Date, default: Date.now },
   },

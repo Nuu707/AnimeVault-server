@@ -1,5 +1,5 @@
 {
-  "name": "animetrack-backend",
+  "name": "animevault-backend",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {

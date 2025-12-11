@@ -1,26 +1,34 @@
+// controllers/contactController.js
 const nodemailer = require('nodemailer');
 
+/**
+ * @desc    Enviar mensaje de contacto vía email
+ * @route   POST /api/contact
+ * @access  Public
+ */
 const sendContactEmail = async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
+    // ---------------------- Validación de campos ----------------------
     if (!name || !email || !message) {
       return res.status(400).json({ message: "Todos los campos son obligatorios" });
     }
 
-    // Configurar transporte de Nodemailer (Gmail)
+    // ---------------------- Configuración del transporte ----------------------
+    // Usando Gmail
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER, // correo emisor
+        pass: process.env.EMAIL_PASS, // contraseña o app password
       },
     });
 
-    // Contenido del email
+    // ---------------------- Contenido del email ----------------------
     const mailOptions = {
-      from: `"AnimeTrack Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER, // Te lo envías a ti mismo
+      from: `"AnimeTrack Contact" <${process.env.EMAIL_USER}>`, // remitente
+      to: process.env.EMAIL_USER, // receptor (yo mismo)
       subject: `Nuevo mensaje de contacto de ${name}`,
       text: `
 Nombre: ${name}
@@ -30,9 +38,10 @@ ${message}
       `,
     };
 
-    // Enviar email
+    // ---------------------- Envío del email ----------------------
     await transporter.sendMail(mailOptions);
 
+    // ---------------------- Respuesta exitosa ----------------------
     res.status(200).json({ message: "Mensaje enviado correctamente" });
 
   } catch (error) {

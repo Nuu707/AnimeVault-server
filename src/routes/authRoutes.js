@@ -1,4 +1,3 @@
-// src/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -6,16 +5,26 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const auth = require('../middlewares/auth');
 
+// =========================
+//       UTILIDADES
+// =========================
+
 // Validador simple de email
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 // =========================
-// REGISTER
+//       RUTAS PÚBLICAS
 // =========================
+
+/**
+ * @route   POST /api/auth/register
+ * @desc    Registrar un nuevo usuario
+ */
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    // Validaciones básicas
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'username, email y password son obligatorios' });
     }
@@ -28,21 +37,24 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
+    // Comprobar existencia de usuario
     const existingByEmail = await User.findOne({ email });
     if (existingByEmail) return res.status(400).json({ message: 'Ya existe una cuenta con ese email' });
 
     const existingByUsername = await User.findOne({ username });
     if (existingByUsername) return res.status(400).json({ message: 'El nombre de usuario ya está en uso' });
 
+    // Hashear contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Crear usuario
     const newUser = await User.create({
       username,
       email,
       password: hashedPassword
     });
 
-    // Firmar token con _id para que coincida con el middleware
+    // Firmar token con _id
     const token = jwt.sign(
       { _id: newUser._id.toString(), email: newUser.email },
       process.env.JWT_SECRET,
@@ -59,9 +71,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// =========================
-// LOGIN
-// =========================
+/**
+ * @route   POST /api/auth/login
+ * @desc    Login de usuario
+ */
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -92,8 +105,13 @@ router.post('/login', async (req, res) => {
 });
 
 // =========================
-// Ruta protegida ejemplo
+//       RUTAS PROTEGIDAS
 // =========================
+
+/**
+ * @route   GET /api/auth/profile/me
+ * @desc    Obtener datos del usuario autenticado (ejemplo)
+ */
 router.get('/profile/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');

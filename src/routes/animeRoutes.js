@@ -5,10 +5,13 @@ const User = require('../models/User');
 const auth = require('../middlewares/auth');
 
 // =========================
-//     RUTAS PÚBLICAS
+//       RUTAS PÚBLICAS
 // =========================
 
-// GET todos los animes
+/**
+ * @route   GET /api/anime
+ * @desc    Obtener todos los animes
+ */
 router.get('/', async (req, res) => {
   try {
     const animes = await Anime.find();
@@ -19,7 +22,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET un anime por ID
+/**
+ * @route   GET /api/anime/:id
+ * @desc    Obtener un anime por ID
+ */
 router.get('/:id', async (req, res) => {
   try {
     const anime = await Anime.findById(req.params.id);
@@ -31,7 +37,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST crear anime
+/**
+ * @route   POST /api/anime
+ * @desc    Crear un nuevo anime
+ */
 router.post('/', async (req, res) => {
   try {
     const newAnime = new Anime(req.body);
@@ -43,7 +52,10 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT actualizar anime
+/**
+ * @route   PUT /api/anime/:id
+ * @desc    Actualizar un anime
+ */
 router.put('/:id', async (req, res) => {
   try {
     const updatedAnime = await Anime.findByIdAndUpdate(
@@ -59,7 +71,10 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE eliminar anime
+/**
+ * @route   DELETE /api/anime/:id
+ * @desc    Eliminar un anime
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const deletedAnime = await Anime.findByIdAndDelete(req.params.id);
@@ -72,10 +87,13 @@ router.delete('/:id', async (req, res) => {
 });
 
 // =========================
-//     RUTAS PROTEGIDAS - MY ANIMES
+//   RUTAS PROTEGIDAS: MY ANIMES
 // =========================
 
-// POST añadir anime a la lista del usuario
+/**
+ * @route   POST /api/anime/my-animes
+ * @desc    Añadir anime a la lista del usuario
+ */
 router.post('/my-animes', auth, async (req, res) => {
   try {
     const { animeId, status = 'plan', favorite = false } = req.body;
@@ -103,7 +121,10 @@ router.post('/my-animes', auth, async (req, res) => {
   }
 });
 
-// PATCH actualizar estado o favorito
+/**
+ * @route   PATCH /api/anime/my-animes/:animeId
+ * @desc    Actualizar estado o favorito de un anime en la lista del usuario
+ */
 router.patch('/my-animes/:animeId', auth, async (req, res) => {
   try {
     const { animeId } = req.params;
@@ -126,7 +147,10 @@ router.patch('/my-animes/:animeId', auth, async (req, res) => {
   }
 });
 
-// DELETE eliminar anime de la lista del usuario
+/**
+ * @route   DELETE /api/anime/my-animes/:animeId
+ * @desc    Eliminar un anime de la lista del usuario
+ */
 router.delete('/my-animes/:animeId', auth, async (req, res) => {
   try {
     const { animeId } = req.params;

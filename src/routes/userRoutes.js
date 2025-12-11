@@ -6,8 +6,12 @@ const auth = require('../middlewares/auth');
 const bcrypt = require('bcryptjs');
 
 // =========================
-// GET perfil propio (con animes)
+// PERFIL DEL USUARIO
 // =========================
+
+// -------------------------
+// GET perfil propio (con animes)
+// -------------------------
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -42,9 +46,9 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// =========================
+// -------------------------
 // PATCH actualizar perfil propio
-// =========================
+// -------------------------
 router.patch('/me', auth, async (req, res) => {
   try {
     const { username, email, avatar, password } = req.body;
@@ -67,10 +71,10 @@ router.patch('/me', auth, async (req, res) => {
   }
 });
 
-// =========================
-// GET buscar usuarios (por username o email)
-// Debe ir antes de /:id para que no lo confunda Express
-// =========================
+// -------------------------
+// GET buscar usuarios por username o email
+// -------------------------
+// Nota: Debe ir antes de /:id para no confundir rutas
 router.get('/search', auth, async (req, res) => {
   try {
     const query = req.query.q?.trim() || '';
@@ -97,9 +101,9 @@ router.get('/search', auth, async (req, res) => {
   }
 });
 
-// =========================
+// -------------------------
 // GET perfil de un usuario por id (con animes)
-// =========================
+// -------------------------
 router.get('/:id', auth, async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -130,8 +134,10 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // =========================
-// GET my-animes
+// ANIMES DEL USUARIO
 // =========================
+
+// GET my-animes
 router.get('/my-animes', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -166,15 +172,12 @@ router.get('/my-animes', auth, async (req, res) => {
   }
 });
 
-// =========================
-// POST añadir anime (rating decimal permitido)
-// =========================
+// POST añadir anime
 router.post('/my-animes', auth, async (req, res) => {
   try {
     const { animeId, status = 'plan', rating, notes } = req.body;
     if (!animeId) return res.status(400).json({ message: 'animeId es obligatorio' });
 
-    // Convertir a número para aceptar decimales
     const numericRating = rating !== undefined ? parseFloat(rating) : undefined;
     if (numericRating !== undefined && (isNaN(numericRating) || numericRating < 0 || numericRating > 10)) {
       return res.status(400).json({ message: 'La puntuación debe estar entre 0 y 10' });
@@ -216,9 +219,7 @@ router.post('/my-animes', auth, async (req, res) => {
   }
 });
 
-// =========================
-// PATCH actualizar anime (rating decimal permitido)
-// =========================
+// PATCH actualizar anime
 router.patch('/my-animes/:animeId', auth, async (req, res) => {
   try {
     const { animeId } = req.params;
@@ -264,9 +265,7 @@ router.patch('/my-animes/:animeId', auth, async (req, res) => {
   }
 });
 
-// =========================
 // PATCH toggle favorite
-// =========================
 router.patch('/favorite/:animeId', auth, async (req, res) => {
   try {
     const { animeId } = req.params;
@@ -291,9 +290,7 @@ router.patch('/favorite/:animeId', auth, async (req, res) => {
   }
 });
 
-// =========================
 // DELETE eliminar anime
-// =========================
 router.delete('/my-animes/:animeId', auth, async (req, res) => {
   try {
     const { animeId } = req.params;
@@ -332,8 +329,10 @@ router.delete('/my-animes/:animeId', auth, async (req, res) => {
 });
 
 // =========================
-// DELETE eliminar cuenta del usuario loggeado y limpiar referencias
+// CUENTA DEL USUARIO
 // =========================
+
+// DELETE eliminar cuenta del usuario loggeado y limpiar referencias
 router.delete('/me', auth, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -341,6 +340,7 @@ router.delete('/me', auth, async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
+    // Limpiar referencias de amigos
     await User.updateMany(
       { friends: userId },
       { $pull: { friends: userId } }

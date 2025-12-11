@@ -5,6 +5,10 @@ const User = require("../models/User");
 const FriendRequest = require("../models/FriendRequest");
 const auth = require("../middlewares/auth");
 
+// =========================
+//      AMISTADES
+// =========================
+
 // -------------------------------
 // Enviar solicitud de amistad
 // -------------------------------
@@ -26,13 +30,13 @@ router.post("/request", auth, async (req, res) => {
       });
     }
 
-    // Verificar si el usuario destino existe
+    // Verificar existencia del usuario destino
     const destUser = await User.findById(recipientId);
     if (!destUser) {
       return res.status(404).json({ success: false, message: "Usuario destinatario no encontrado" });
     }
 
-    // Ya existe solicitud pendiente
+    // Verificar si ya existe solicitud pendiente
     const exist = await FriendRequest.findOne({
       from: fromUserId,
       to: recipientId,
@@ -43,7 +47,7 @@ router.post("/request", auth, async (req, res) => {
       return res.status(400).json({ success: false, message: "Solicitud ya enviada anteriormente" });
     }
 
-    // Solicitud inversa pendiente
+    // Verificar si hay solicitud inversa pendiente
     const reverse = await FriendRequest.findOne({
       from: recipientId,
       to: fromUserId,
@@ -57,7 +61,7 @@ router.post("/request", auth, async (req, res) => {
       });
     }
 
-    // Ya son amigos
+    // Verificar si ya son amigos
     const me = await User.findById(fromUserId);
     if (me.friends.includes(recipientId)) {
       return res.status(400).json({ success: false, message: "Ya sois amigos" });
@@ -82,7 +86,7 @@ router.post("/request", auth, async (req, res) => {
 });
 
 // -------------------------------
-// Aceptar solicitud
+// Aceptar solicitud de amistad
 // -------------------------------
 router.patch("/accept/:id", auth, async (req, res) => {
   try {
@@ -100,7 +104,7 @@ router.patch("/accept/:id", auth, async (req, res) => {
     request.status = "accepted";
     await request.save();
 
-    // añadir amistad mutua
+    // Añadir amistad mutua
     await User.findByIdAndUpdate(userId, { $addToSet: { friends: request.from } });
     await User.findByIdAndUpdate(request.from, { $addToSet: { friends: userId } });
 
@@ -112,7 +116,7 @@ router.patch("/accept/:id", auth, async (req, res) => {
 });
 
 // -------------------------------
-// Rechazar solicitud
+// Rechazar solicitud de amistad
 // -------------------------------
 router.delete("/reject/:id", auth, async (req, res) => {
   try {
@@ -147,7 +151,7 @@ router.get("/", auth, async (req, res) => {
 
     res.json({
       success: true,
-      friends: user.friends  // <-- CORREGIDO
+      friends: user.friends
     });
   } catch (err) {
     console.error("Error en GET /friends:", err);

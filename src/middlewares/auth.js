@@ -21,7 +21,7 @@ const auth = (req, res, next) => {
     // ---------------------- Verificar token ----------------------
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // DEBUG opcional — comentar en producción
+    // DEBUG opcional 
     console.log('TOKEN DECODIFICADO:', decoded);
 
     // ---------------------- Normalizar datos del usuario ----------------------

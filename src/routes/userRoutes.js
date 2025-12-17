@@ -74,7 +74,6 @@ router.patch('/me', auth, async (req, res) => {
 // -------------------------
 // GET buscar usuarios por username o email
 // -------------------------
-// Nota: Debe ir antes de /:id para no confundir rutas
 router.get('/search', auth, async (req, res) => {
   try {
     const query = req.query.q?.trim() || '';
@@ -97,38 +96,6 @@ router.get('/search', auth, async (req, res) => {
     res.json({ users });
   } catch (err) {
     console.error('Error en GET /users/search:', err);
-    res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-// -------------------------
-// GET perfil de un usuario por id (con animes)
-// -------------------------
-router.get('/:id', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id)
-      .populate({
-        path: 'animes.animeId',
-        select: 'title image genre rating description',
-        options: { lean: true },
-      });
-
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-
-    const filteredAnimes = user.animes
-      .filter(a => a.animeId)
-      .map(a => {
-        const animeObj = a.toObject ? a.toObject() : { ...a };
-        if (animeObj.score !== undefined) {
-          animeObj.rating = animeObj.score;
-          delete animeObj.score;
-        }
-        return animeObj;
-      });
-
-    res.json({ ...user.toJSON(), animes: filteredAnimes });
-  } catch (err) {
-    console.error('Error en GET /user/:id:', err);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
@@ -353,6 +320,38 @@ router.delete('/me', auth, async (req, res) => {
     });
   } catch (err) {
     console.error('Error en DELETE /user/me:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// -------------------------
+// GET perfil de un usuario por id (con animes) — AL FINAL
+// -------------------------
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate({
+        path: 'animes.animeId',
+        select: 'title image genre rating description',
+        options: { lean: true },
+      });
+
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    const filteredAnimes = user.animes
+      .filter(a => a.animeId)
+      .map(a => {
+        const animeObj = a.toObject ? a.toObject() : { ...a };
+        if (animeObj.score !== undefined) {
+          animeObj.rating = animeObj.score;
+          delete animeObj.score;
+        }
+        return animeObj;
+      });
+
+    res.json({ ...user.toJSON(), animes: filteredAnimes });
+  } catch (err) {
+    console.error('Error en GET /user/:id:', err);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
